@@ -12,8 +12,10 @@ public class AnalyzeInputImplTest {
 
     @Test
     void validate() {
-        assertTrue(analyzeInputImpl.validate(input_1));
-        assertFalse(analyzeInputImpl.validate(wrong_formatted_input_1) );
+        analyzeInputImpl.validate(input_1);
+        assertThrows(IllegalArgumentException.class, ()->{
+            analyzeInputImpl.validate(wrong_formatted_input_1);
+        } );
     }
 
     @Test

@@ -45,10 +45,6 @@ public class Employee<T extends Number> {
     public void input() throws IOException, IllegalArgumentException {
         String line = reader.readLine();
         String[] inputStr = analyzer.analyze(line);
-        if(!analyzer.validate(line)) {
-            log.error("Input {} is wrongly formatted", line);
-            throw new IllegalArgumentException("Invalid input");
-        }
         this.name = inputStr[1];
         this.grossAnnualIncome = calculator.convert(inputStr[2]);
     }

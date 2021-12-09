@@ -12,11 +12,7 @@ public class AnalyzeInputImpl implements AnalyzeInput{
 
     @Override
     public String[] analyze(@NonNull String input) throws IllegalArgumentException {
-        if(!validate(input.trim())) {
-            log.error("Input {} is wrongly formatted", input);
-            throw new IllegalArgumentException("Invalid input");
-        }
-
+        validate(input.trim());
         String[] res = input.split("\"");
         for(int i=0;i<res.length;i++) {
             res[i] =  res[i].trim();
@@ -25,8 +21,11 @@ public class AnalyzeInputImpl implements AnalyzeInput{
     }
 
     @Override
-    public boolean validate(String input) {
+    public void validate(String input) throws IllegalArgumentException{
         Matcher m = p.matcher(input);
-        return m.matches();
+        if(!m.matches()) {
+            log.error("Input {} is wrongly formatted", input);
+            throw new IllegalArgumentException("Input "+input+" is wrongly formatted");
+        }
     }
 }

@@ -31,7 +31,7 @@ public class ApplicationMain {
         try{
             employee.input();
         }catch(Exception e) {
-            log.error(e.getMessage());
+            log.error("Invalid input. "+ e.getMessage());
             return;
         }
         //calculate
