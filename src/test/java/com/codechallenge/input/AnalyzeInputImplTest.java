@@ -2,7 +2,8 @@ package com.codechallenge.input;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AnalyzeInputImplTest {
 
@@ -21,8 +22,8 @@ public class AnalyzeInputImplTest {
     @Test
     void analyze() {
         String[] inputStr = analyzeInputImpl.analyze(input_1);
-        assertTrue(inputStr[1].equals("Mary Song"));
-        assertTrue(inputStr[2].equals("60000"));
+        assertEquals(inputStr[1], "Mary Song");
+        assertEquals(inputStr[2], "60000");
     }
 
     @Test

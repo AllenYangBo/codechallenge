@@ -1,11 +1,11 @@
 package com.codechallenge.calculate;
 
 import org.junit.jupiter.api.Test;
+
 import java.math.BigDecimal;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CalculatorImplTest {
 
@@ -79,16 +79,16 @@ public class CalculatorImplTest {
     @Test
     void annualTax() {
         BigDecimal totalTax = calculator.annualTax(BigDecimal.valueOf(20000));
-        assertTrue(totalTax.doubleValue()==0d);
+        assertEquals(totalTax.doubleValue(),0d);
 
         totalTax = calculator.annualTax(BigDecimal.valueOf(60000));
-        assertTrue(totalTax.doubleValue()==6000d);
+        assertEquals(totalTax.doubleValue(),6000d);
 
         totalTax = calculator.annualTax(BigDecimal.valueOf(80000));
-        assertTrue(totalTax.doubleValue()==10000d);
+        assertEquals(totalTax.doubleValue(),10000d);
 
         totalTax = calculator.annualTax(BigDecimal.valueOf(180000));
-        assertTrue(totalTax.doubleValue()==40000d);
+        assertEquals(totalTax.doubleValue(),40000d);
     }
 
     @Test
