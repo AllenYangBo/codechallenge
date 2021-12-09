@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -23,6 +25,15 @@ public class CalculatorImpl implements Calculator<BigDecimal> {
     public final static BigDecimal income_40000 = new BigDecimal(40000);
     public final static BigDecimal income_20001 = new BigDecimal(20001);
     public final static BigDecimal income_20000 = new BigDecimal(20000);
+    public final static Map<BigDecimal, Double> taxRate = new HashMap<>();
+
+    public CalculatorImpl() {
+        taxRate.put(BigDecimal.ZERO, 0d);
+        taxRate.put(income_20001, 0.1d);
+        taxRate.put(income_40001, 0.2d);
+        taxRate.put(income_80001, 0.3d);
+        taxRate.put(income_180001, 0.4d);
+    }
     /**
      * Due to the precision problem in divide operation in Big decimal, this divide operation is shared in this
      * big decimal implementation
@@ -61,25 +72,23 @@ public class CalculatorImpl implements Calculator<BigDecimal> {
         }
         log.info("Segment the income into different tax ranges for gross income {}", grossAnnualIncome);
         Map<BigDecimal, BigDecimal> incomesSegment = new HashMap<>();
-        if(grossAnnualIncome.compareTo(income_180000)>0) {
-            incomesSegment.put(income_180001 ,grossAnnualIncome.subtract(income_180000));
-            grossAnnualIncome = income_180000;
+
+        BiFunction<BigDecimal, BigDecimal, BigDecimal> segment = (range, grossIncome) -> {
+            if(grossIncome.compareTo(range)>=0) {
+                incomesSegment.put(range, grossIncome.subtract(range).add(BigDecimal.ONE));
+                return range.subtract(BigDecimal.ONE);
+            }
+            return BigDecimal.ZERO;
+        };
+
+        BigDecimal[] ranges = new BigDecimal[]{income_180001, income_80001, income_40001, income_20001, BigDecimal.ZERO};
+        for(BigDecimal range: ranges) {
+            BigDecimal res = segment.apply(range, grossAnnualIncome);
+            if(res.compareTo(BigDecimal.ZERO)>0) {
+                grossAnnualIncome = res;
+            }
         }
-        if(grossAnnualIncome.compareTo(income_80000)>0) {
-            incomesSegment.put(income_80001 ,grossAnnualIncome.subtract(income_80000));
-            grossAnnualIncome = income_80000;
-        }
-        if(grossAnnualIncome.compareTo(income_40000)>0) {
-            incomesSegment.put(income_40001, grossAnnualIncome.subtract(income_40000));
-            grossAnnualIncome = income_40000;
-        }
-        if(grossAnnualIncome.compareTo(income_20000)>0) {
-            incomesSegment.put(income_20001, grossAnnualIncome.subtract(income_20000));
-            grossAnnualIncome = income_20000;
-        }
-        if(grossAnnualIncome.compareTo(BigDecimal.ZERO)>0) {
-            incomesSegment.put(BigDecimal.ZERO, grossAnnualIncome.subtract(income_20000));
-        }
+
         return incomesSegment;
     }
 
@@ -106,24 +115,12 @@ public class CalculatorImpl implements Calculator<BigDecimal> {
      * @return tax rate corresponding to the gross income
      * */
     protected Double taxRate(@NonNull BigDecimal grossIncome) throws IllegalArgumentException {
-        if(grossIncome.compareTo(BigDecimal.ZERO)>=0 && grossIncome.compareTo(income_20000) <= 0 ) {
-            return 0d;
-        }
-        if(grossIncome.compareTo(income_20001) >=0 &&
-                grossIncome.compareTo(income_40000) <= 0 ) {
-            return 0.1d;
-        }
-        if(grossIncome.compareTo(income_40001) >=0 &&
-                grossIncome.compareTo(income_80000) <= 0 ) {
-            return 0.2d;
-        }
-        if(grossIncome.compareTo(income_80001) >=0 &&
-                grossIncome.compareTo(income_180000) <= 0 ) {
-            return 0.3d;
-        }
-        if(grossIncome.compareTo(income_180001) >=0) {
-            return 0.4d;
-        }
-        throw new IllegalArgumentException();
+         Optional<Map.Entry<BigDecimal, Double>> rateEntry = taxRate.entrySet().stream().filter(entry-> entry.getKey().compareTo(grossIncome)<=0 )
+                .max( (a,b) -> a.getKey().compareTo(b.getKey())<0?-1:(a.getKey().compareTo(b.getKey())==0?0:1) );
+         if(rateEntry.isEmpty()) {
+             log.info("Parameter of gross income {} is wrong", grossIncome);
+             throw new IllegalArgumentException();
+         }
+         return rateEntry.get().getValue();
     }
 }
